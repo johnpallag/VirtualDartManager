@@ -42,7 +42,7 @@
 
   <script>
     $("#hostButton").on('click', function() {
-      $.post("/host", function(e) {
+      $.post("/host", {GameType: $("#gameType").val()}, function(e) {
         var res = JSON.parse(e);
         if (res && res.Id) {
           window.location = "/join/" + res.Id;

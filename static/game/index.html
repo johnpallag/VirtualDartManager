@@ -21,9 +21,16 @@
   <div id="gameId"></div>
   <div id="players"></div>
   <input id="throw1" type="text"/>
-  <input id="throw3" type="text"/>
   <input id="throw2" type="text"/>
+  <input id="throw3" type="text"/>
   <div id="submit" class="btn btn-primary">Submit</div>
+  <div id="players"></div>
+  <style>
+  .score {
+    text-align:center;
+    width: 85px
+    }
+  </style>
   <script>
     var game = {};
 
@@ -48,12 +55,26 @@
       });
     }
 
+    const cricketScores = ['20','19','18','17','16','15','bull'];
+
     function Initialize(gameData) {
       game = gameData;
       $("#gameId").text(game.Id);
       $("#players").html("");
       for(let i=0;i<game.Players.length;i++){
-        $("#players").append("<div class='player'>" + game.Players[i].Name + "</div>");
+        $("#players").append("<div class='player'>" + game.Players[i].Name + "</div><br>");
+
+        for(let j=0;j<cricketScores.length;j++){
+          var count = game.Players[i].Scores[cricketScores[j]] || 0;
+          var printout = "";
+          if(count == 1)
+            printout = "&#x2f;";
+          else if(count == 2)
+            printout = "X";
+          else if(count >= 3)
+            printout = "&#9447; " + ((count - 3 > 0) ? ("" + (count - 3)) : "");
+          $("#players").append("<div class='score'>" + cricketScores[j] + ": " + printout + "</div>");
+        }
       }
     }
   </script>

@@ -1,5 +1,4 @@
 const UTIL = require("../util");
-const CARD = require("./card");
 const uuidv1 = require('uuid/v1');
 //require("../util/seedrandom");
 
@@ -8,6 +7,7 @@ const uuidv1 = require('uuid/v1');
 const Player = function(name) {
   this.Id = UTIL.GenerateId();
   this.Throws = [];
+  this.Scores = {};
   this.Name = name;
 }
 

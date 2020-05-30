@@ -25,7 +25,6 @@ const GAME = require('./game/game');
 /////////////////////////////////////////////////////////////////////////
 
 var games = [];
-var playerMap = [];
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -44,8 +43,8 @@ app.get('/join/:gameId', function(req, res){
 /////////////////////////////////////////////////////////////////////////
 
 app.post('/host', function(req, res){
-  var options = req.body.Options;
-  var newGame = new GAME.Game(req.ip, options);
+  var gameType = req.body.GameType;
+  var newGame = new GAME.Game(req.ip, gameType);
   games[newGame.Id] = newGame;
   res.end(JSON.stringify(newGame));
 });
@@ -57,8 +56,8 @@ app.post('/game/:gameId', function(req, res){
   var game = UTIL.Clone(games[gameId]);
   if(game !== undefined) {
     game.IsHost = req.ip === game.Host;
-    //delete game.Host;
-    //delete game.PlayerMap;
+    delete game.Host;
+    delete game.PlayerMap;
   }
   res.end(JSON.stringify(game));
 });
@@ -75,7 +74,7 @@ app.post('/join/:gameId', function(req, res){
 
   var player = new PLAYER.Player(req.body.Name);
   games[gameId].Players.push(player);
-  games[gameId].PlayerMap[address] = player;
+  games[gameId].PlayerMap[address] = games[gameId].Players.length - 1;
   res.end(JSON.stringify(player));
 });
 
@@ -107,14 +106,14 @@ app.post('/update/:gameId', function(req, res){
     res.end(JSON.stringify("Invalid game"));
     return;
   }
-  var player = game.PlayerMap[address];
-  if(player === undefined){
+  var playerIdx = game.PlayerMap[address];
+  if(playerIdx === undefined){
     res.end(JSON.stringify("Invalid player"));
     return;
   }
-  player.Throws.push(req.body.Throw1);
-  player.Throws.push(req.body.Throw2);
-  player.Throws.push(req.body.Throw3);
+  game.AddThrow(playerIdx, req.body.Throw1);
+  game.AddThrow(playerIdx, req.body.Throw2);
+  game.AddThrow(playerIdx, req.body.Throw3);
   res.end();
 });
 

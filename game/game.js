@@ -1,5 +1,4 @@
 const UTIL = require("../util");
-const MONSTER = require("./monster");
 require("../util/seedrandom");
 
 const EnumGameState = {
@@ -15,11 +14,11 @@ const EnumGameState = {
 
 /////////////////////////////////////////////////////////////////////////
 
-const Game = function(host, options) {
+const Game = function(host, gameType) {
   this.Id = UTIL.GenerateId();
   this.Players = [];
   this.PlayerMap = [];
-  this.Options = options;
+  this.GameType = gameType;
   this.Host = host;
   this.GameState = -1;
 };
@@ -28,6 +27,15 @@ const Game = function(host, options) {
 
 Game.prototype.Start = function() {
   this.GameState = 0;
+};
+
+/////////////////////////////////////////////////////////////////////////
+
+Game.prototype.AddThrow = function(playerIdx, newThrow) {
+  this.Players[playerIdx].Throws.push(newThrow);
+  var value = "" + newThrow.split("x")[0];
+  var multiplier = parseInt(newThrow.split("x")[1] || "1");
+  this.Players[playerIdx].Scores[value] = (this.Players[playerIdx].Scores[value] || 0) + multiplier;
 };
 
 /////////////////////////////////////////////////////////////////////////
