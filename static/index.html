@@ -8,17 +8,29 @@
   <meta name="author" content="">
 
   <title>Fallow Dart MGR</title>
-  <script src="js/jquery.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/bootstrap-slider.js"></script>
-  <script src="js/index.js"></script>
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <script src="/js/bootstrap-slider.js"></script>
+  <script src="/js/index.js"></script>
 
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
 </head>
 
 <body>
-  <a href="/host" id="hostButton" class="btn btn-primary">Host</a>
+  <div class="container">
+    <h1>Virtual Dart Manager</h1>
+    <p>Score keeping system for playing darts virtually</p>
+    <hr />
+
+    <form>
+      <div class="form-group">
+        <input type="text" name="fname" id="name" class="form-control" placeholder="Your Name"/>
+      </div>
+      <a href="#" id="joinButton" class="btn btn-success">Join</a>
+      <a href="/host" id="hostButton" class="btn btn-primary">Host</a>
+    </form>
+  </div>
 </body>
 
 </html>

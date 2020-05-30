@@ -1,7 +1,6 @@
 'use strict';
 const express = require('express');
 const bodyParser = require('body-parser');
-const socketIO = require('socket.io');
 const path = require('path');
 const uuidv1 = require('uuid/v1');
 const fs = require('fs');
@@ -18,7 +17,6 @@ const server = app
   .use(bodyParser.json())
   .set('trust proxy', true)
   .listen(PORT, () => console.log('Listening on ' + PORT));
-const io = socketIO(server);
 
 const UTIL = require('./util');
 const PLAYER = require('./game/player');
@@ -31,7 +29,16 @@ var playerMap = [];
 
 /////////////////////////////////////////////////////////////////////////
 
-io.on('connection', function(socket) {
+app.get('/game/:gameId', function(req, res){
+  var gameId = req.params.gameId;
+  res.sendFile(path.join(__dirname + '/static/game/index.html'));
+});
+
+/////////////////////////////////////////////////////////////////////////
+
+app.get('/join/:gameId', function(req, res){
+  var gameId = req.params.gameId;
+  res.sendFile(path.join(__dirname + '/static/join/index.html'));
 });
 
 /////////////////////////////////////////////////////////////////////////
@@ -45,8 +52,8 @@ app.post('/host', function(req, res){
 
 /////////////////////////////////////////////////////////////////////////
 
-app.post('/game', function(req, res){
-  var gameId = req.body.Id;
+app.post('/game/:gameId', function(req, res){
+  var gameId = req.params.gameId;
   var game = UTIL.Clone(games[gameId]);
   if(game !== undefined) {
     game.IsHost = req.ip === game.Host;
@@ -58,9 +65,9 @@ app.post('/game', function(req, res){
 
 /////////////////////////////////////////////////////////////////////////
 
-app.post('/join', function(req, res){
+app.post('/join/:gameId', function(req, res){
   var address = req.ip;
-  var gameId = req.body.Id;
+  var gameId = req.params.gameId;
   if(games[gameId] === undefined) {
     res.end(JSON.stringify("Invalid game"));
     return;
@@ -74,8 +81,8 @@ app.post('/join', function(req, res){
 
 /////////////////////////////////////////////////////////////////////////
 
-app.post('/start', function(req, res) {
-  var gameId = req.body.Id;
+app.post('/start/:gameId', function(req, res) {
+  var gameId = req.params.gameId;
   var address = req.ip;
   var game = games[gameId];
   if(game === undefined) {
@@ -92,8 +99,8 @@ app.post('/start', function(req, res) {
 
 /////////////////////////////////////////////////////////////////////////
 
-app.post('/update', function(req, res){
-  var gameId = req.body.Id;
+app.post('/update/:gameId', function(req, res){
+  var gameId = req.params.gameId;
   var address = req.ip;
   var game = games[gameId];
   if(game === undefined) {

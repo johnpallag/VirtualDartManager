@@ -1,3 +1,8 @@
+@font-face {
+  font-family: SqueakyChalkSound;
+  src: url(../fonts/SqueakyChalkSound.ttf);
+}
+
 .slider.slider-vertical{
 	width: 150px;
 }
@@ -11,56 +16,69 @@
 .slider-handle{
 	width: 160px;
 }
-.card {
-    float: left;
-    width: 19vw;
-    height: 24vw;
-    background-color: #b9b9b9;
-    margin: 0.5vw;
-    border-radius: 1vw;
-    text-align: center;
-    padding-top: 20vw;
-    color: white;
-    font-size: 2vw;
-    cursor: pointer;
-    border: 2px solid white;
-}
-.card:hover {
-    border: 2px solid black;
-    transform: scale(1.05);
-}
-.card:focus {
-    border: 2px solid black;
-    transform: scale(1.05);
-}
 
-#activeCards {
-    width: 100%;
-    bottom: 0;
-}
-#monsterPower {
-    background-color: #e7e7e7;
-    text-align: center;
-    width: 5vw;
-    height: 5vw;
-    border-radius: 2.5vw;
-    padding: 0.75vw 0;
-    font-size: 2.5vw;
-    margin: 1vw;
-    z-index: 5;
+#gameId {
+    padding: 5px;
+    font-size: 32px;
     position: absolute;
-    right: 0;
-}
-.activeMonsterArea {
-    width: 20vw;
-    float: left;
-    position: relative;
-    display: inline-block;
-    height: 1px;
+    bottom: 5px;
+    right: 5px;
+    text-decoration: underline;
 }
 
-#activeMonsters {
-    width: 100%;
-    position: relative;
-    float: left;
+* {
+	font-family: SqueakyChalkSound
+}
+
+body {
+	background-color: #212121;
+	color: white;
+}
+
+input {
+    background-color: transparent !important;
+    border: 0px !important;
+    border-bottom: 2px solid white !important;
+		box-shadow: none !important;
+		color: white !important;
+}
+
+input:hover {
+    background-color: transparent !important;
+    border: 0px !important;
+    border-bottom: 2px solid white !important;
+		box-shadow: none !important;
+		color: white !important;
+}
+
+select:focus {
+    background-color: transparent !important;
+    border: 0px !important;
+    border-bottom: 2px solid white !important;
+		box-shadow: none !important;
+		color: white !important;
+}
+
+select {
+    background-color: transparent !important;
+    border: 0px !important;
+    border-bottom: 2px solid white !important;
+		box-shadow: none !important;
+		color: white !important;
+}
+
+select:hover {
+    background-color: transparent !important;
+    border: 0px !important;
+    border-bottom: 2px solid white !important;
+		box-shadow: none !important;
+		color: white !important;
+}
+
+select:focus {
+    background-color: transparent !important;
+    border: 0px !important;
+    border-bottom: 2px solid white !important;
+		box-shadow: none !important;
+		color: white !important;
 }

@@ -1,4 +1,5 @@
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,81 +8,72 @@
   <meta name="author" content="">
 
   <title>Fallow Dart MGR - Join</title>
-  <script src="../js/jquery.js"></script>
-  <script src="../js/bootstrap.min.js"></script>
-  <script src="../js/bootstrap-slider.js"></script>
-  <script src="../js/util.js"></script>
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <script src="/js/bootstrap-slider.js"></script>
+  <script src="/js/index.js"></script>
+  <script src="/js/util.js"></script>
 
-  <link href="../css/bootstrap.min.css" rel="stylesheet">
-  <link href="../css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
 </head>
 
 <body>
-  <div id="gameId"></div>
-  <input type="text" name="fname" id="name" placeholder="Your Name"/>
-  <div id="join" class="btn btn-success">Join</div>
-  <div id="start" class="btn btn-primary disabled">Start</div>
-  <div id="players"></div>
-  <script>
-    var params = GetUrlParams();
-    if(params.id === undefined)
-      window.location = "/";
+  <div class="container">
+    <h1>Join</h1>
+    <hr />
 
+    <form>
+      <div class="form-group">
+        <input type="text" name="fname" id="name" placeholder="Your Name" class="form-control"/>
+      </div>
+        <div id="join" class="btn btn-success">Join</div>
+        <div id="start" class="btn btn-primary disabled">Start</div>
+    </form>
+  </div>
+  <div id="gameId"></div>
+  <script>
     var game = {};
-    var playerId = "";
 
     UpdateGame();
-    setInterval(function(){
+    setInterval(function() {
       UpdateGame();
     }, 1000);
 
-    $("#join").on("click", function(e){
-      if(game.Id === undefined)
+    $("#join").on("click", function(e) {
+      if (game.Id === undefined)
         return;
-      if($("#name").val() === "")
+      if ($("#name").val() === "")
         return;
-      $.post("/join", {Id:game.Id, Name:$("#name").val()}, function(e){
-        try {
-          var res = JSON.parse(e);
-          if (res === undefined || res.Id === undefined)
-            throw "Invalid game id";
-          $("#join").hide();
-          $("#name").hide();
-          playerId = res.Id;
-        } catch(ex){
-          window.location = "/join";
-        }
-      });
+      JoinGame($("#name").val(), GetGameId(), function() {
+        $("#join").hide();
+        $("#name").hide();
+      }, function() {});
     });
 
-    $("#start").on("click", function(e){
-      $.post("/start", {Id:game.Id});
+    $("#start").on("click", function(e) {
+      $.post("/start/" + game.Id);
     });
 
     function UpdateGame() {
-        $.post("/game", {Id: params.id}, function(e){
-          try {
-            var res = JSON.parse(e);
-            if (res === undefined || res.Id === undefined)
-              throw "Invalid game id";
-            Initialize(res);
-          } catch(ex){
-            window.location = "/";
-          }
-        });
+      LoadGame(GetGameId(), function(game) {
+        Initialize(game);
+      }, function() {
+        window.location = "/";
+      });
     }
 
     function Initialize(gameData) {
       game = gameData;
       $("#gameId").text(game.Id);
-      if(game.IsHost === true)
+      if (game.IsHost === true)
         $("#start").removeClass("disabled");
       $("#players").html("");
-      for(let i=0;i<game.Players.length;i++){
+      for (let i = 0; i < game.Players.length; i++) {
         $("#players").append("<div class='player'>" + game.Players[i].Name + "</div>");
       }
-      if(game.GameState !== -1)
-        window.location = "/game?id=" + game.Id + ((playerId === "") ? "" : ("&playerId=" + playerId));
+      if (game.GameState !== -1)
+        window.location = "/game/" + game.Id;
     }
   </script>
 </body>

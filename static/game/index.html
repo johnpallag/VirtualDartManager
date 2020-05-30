@@ -7,13 +7,14 @@
   <meta name="author" content="">
 
   <title>Fallow Dart MGR - Game</title>
-  <script src="../js/jquery.js"></script>
-  <script src="../js/bootstrap.min.js"></script>
-  <script src="../js/bootstrap-slider.js"></script>
-  <script src="../js/util.js"></script>
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <script src="/js/bootstrap-slider.js"></script>
+  <script src="/js/index.js"></script>
+  <script src="/js/util.js"></script>
 
-  <link href="../css/bootstrap.min.css" rel="stylesheet">
-  <link href="../css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -24,33 +25,28 @@
   <input id="throw2" type="text"/>
   <div id="submit" class="btn btn-primary">Submit</div>
   <script>
-    var params = GetUrlParams();
-    if(params.id === undefined)
-      window.location = "/";
-
     var game = {};
-    var playerId = "";
 
-    setInterval(function(){
-      $.post("/game", {Id: params.id}, function(e){
-        try {
-          var res = JSON.parse(e);
-          if (res === undefined || res.Id === undefined)
-            throw "Invalid game id";
-          Initialize(res);
-        } catch(ex){
-          window.location = "/";
-        }
-      });
+    UpdateGame();
+    setInterval(function() {
+      UpdateGame();
     }, 1000);
 
     $("#submit").on("click", function(){
-      $.post("/update", {Id: game.Id,
+      $.post("/update/" + game.Id, {
         Throw1: $("#throw1").val(),
         Throw2: $("#throw2").val(),
         Throw3: $("#throw3").val()
         });
     });
+
+    function UpdateGame() {
+      LoadGame(GetGameId(), function(game){
+        Initialize(game);
+      }, function(){
+        window.location = "/";
+      });
+    }
 
     function Initialize(gameData) {
       game = gameData;
