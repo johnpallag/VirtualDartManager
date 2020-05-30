@@ -1,4 +1,4 @@
-# Fallow Studios Dart Manager
+# Virtual Dart Manager
 ----------------------------------------------
 ## Features
 * Score Keeping
