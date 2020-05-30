@@ -1,0 +1,33 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Fallow Dart MGR - Host</title>
+  <script src="../js/jquery.js"></script>
+  <script src="../js/bootstrap.min.js"></script>
+  <script src="../js/bootstrap-slider.js"></script>
+
+  <link href="../css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/style.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id="hostButton" class="btn btn-primary">Host</div>
+
+  <script>
+    $("#hostButton").on('click', function(){
+      $.post("/host", function(e){
+        var res = JSON.parse(e);
+        if(res && res.Id){
+          window.location = "/join?id=" + res.Id;
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
