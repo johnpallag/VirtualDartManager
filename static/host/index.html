@@ -7,7 +7,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Fallow Dart MGR - Host</title>
+  <title>Virtual Dart MGR - Host</title>
   <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
   <script src="/js/jquery.js"></script>
   <script src="/js/bootstrap.min.js"></script>
@@ -43,7 +43,7 @@
   </div>
   <script>
     $("#hostButton").on('click', function() {
-      FallowStudios.VDM.Host({
+      FallowStudios.VDM.Match.Host({
         GameType: $("#gameType").val()
       }, function(match) {
         window.location = "/" + match.Id + "/join";

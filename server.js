@@ -49,7 +49,7 @@ io.on('connection', function(socket) {
       return;
     }
 
-    var playerIdx = match.PlayerMap[socket];
+    var playerIdx = match.PlayerMap[socket.handshake.address];
     if (playerIdx === undefined) {
       callback({Match: match.ToJson()});
       return;
@@ -65,9 +65,9 @@ io.on('connection', function(socket) {
   socket.on('host', function(data, callback) {
     // TODO: validate game type
     const gameType = data.GameType;
-    const newMatch = new MATCH.Match(socket, true, gameType);
+    const newMatch = new MATCH.Match(socket.handshake.address, true, gameType);
     matches[newMatch.Id] = newMatch;
-    callback(matches[newMatch.Id].ToJson(socket));
+    callback(matches[newMatch.Id].ToJson(socket.handshake.address));
   });
 
   /////////////////////////////////////////////////////////////////////////
@@ -88,9 +88,9 @@ io.on('connection', function(socket) {
 
     let player = new PLAYER.Player(name);
     matches[matchId].Players.push(player);
-    matches[matchId].PlayerMap[socket] = matches[matchId].Players.length - 1;
+    matches[matchId].PlayerMap[socket.handshake.address] = matches[matchId].Players.length - 1;
 
-    io.in(matchId).emit("match", matches[matchId].ToJson(socket));
+    io.in(matchId).emit("match", matches[matchId].ToJson(socket.handshake.address));
     callback(player);
   });
 
@@ -116,7 +116,7 @@ io.on('connection', function(socket) {
     }
 
     match.Start();
-    io.in(matchId).emit("match", matches[matchId].ToJson(socket));
+    io.in(matchId).emit("match", matches[matchId].ToJson(socket.handshake.address));
   });
 
   /////////////////////////////////////////////////////////////////////////
@@ -146,7 +146,7 @@ io.on('connection', function(socket) {
       return;
     }
 
-    var playerIdx = match.PlayerMap[socket];
+    var playerIdx = match.PlayerMap[socket.handshake.address];
     if (playerIdx === undefined) {
       err("Invalid player");
       return;
@@ -155,7 +155,7 @@ io.on('connection', function(socket) {
     game.AddThrow(playerIdx, req.body.Throw2);
     game.AddThrow(playerIdx, req.body.Throw3);
 
-    io.in(matchId).emit("match", matches[matchId].ToJson(socket));
+    io.in(matchId).emit("match", matches[matchId].ToJson(socket.handshake.address));
   });
 });
 
