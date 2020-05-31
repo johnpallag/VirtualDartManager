@@ -31,49 +31,49 @@
         <div id="start" class="btn btn-primary disabled">Start</div>
     </form>
   </div>
-  <div id="gameId"></div>
+  <div id="matchId"></div>
   <script>
-    var game = {};
+    var match = {};
 
-    UpdateGame();
+    UpdateMatch();
     setInterval(function() {
-      UpdateGame();
+      UpdateMatch();
     }, 1000);
 
     $("#join").on("click", function(e) {
-      if (game.Id === undefined)
+      if (match.Id === undefined)
         return;
       if ($("#name").val() === "")
         return;
-      JoinGame($("#name").val(), GetGameId(), function() {
+      JoinMatch($("#name").val(), GetMatchId(), function() {
         $("#join").hide();
         $("#name").hide();
       }, function() {});
     });
 
     $("#start").on("click", function(e) {
-      $.post("/start/" + game.Id);
+      $.post("/start/" + match.Id);
     });
 
-    function UpdateGame() {
-      LoadGame(GetGameId(), function(game) {
-        Initialize(game);
+    function UpdateMatch() {
+      LoadMatch(GetMatchId(), function(match) {
+        Initialize(match);
       }, function() {
-        window.location = "/";
+        //window.location = "/";
       });
     }
 
-    function Initialize(gameData) {
-      game = gameData;
-      $("#gameId").text(game.Id);
-      if (game.IsHost === true)
+    function Initialize(matchData) {
+      match = matchData;
+      $("#gameId").text(match.Id);
+      if (match.IsHost === true)
         $("#start").removeClass("disabled");
       $("#players").html("");
-      for (let i = 0; i < game.Players.length; i++) {
-        $("#players").append("<div class='player'>" + game.Players[i].Name + "</div>");
+      for (let i = 0; i < match.Players.length; i++) {
+        $("#players").append("<div class='player'>" + match.Players[i].Name + "</div>");
       }
-      if (game.GameState !== -1)
-        window.location = "/game/" + game.Id;
+      //if (match.GameState !== -1)
+      //  window.location = "/game/" + game.Id;
     }
   </script>
 </body>

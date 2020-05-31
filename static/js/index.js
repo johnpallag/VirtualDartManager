@@ -1,18 +1,18 @@
 /////////////////////////////////////////////////////////////////////////
 
-function GetGameId() {
+function GetMatchId() {
   var s = window.location.toString().split("/");
-  return s[s.length - 1].split("?")[0];
+  return s[3];
 }
 
 /////////////////////////////////////////////////////////////////////////
 
-function JoinGame(name, gameId, success, failure) {
-  $.post("/join/" + gameId, {Name:name}, function(e){
+function JoinMatch(name, matchId, success, failure) {
+  $.post("/" + matchId + "/join/", {Name:name}, function(e){
     try {
       var res = JSON.parse(e);
       if (res === undefined || res.Id === undefined)
-        throw "Invalid game id";
+        throw "Invalid match id";
       success(res);
     } catch(ex){
       failure(ex);
@@ -22,12 +22,12 @@ function JoinGame(name, gameId, success, failure) {
 
 /////////////////////////////////////////////////////////////////////////
 
-function LoadGame(gameId, success, failure){
-  $.post("/game/" + gameId, function(e){
+function LoadMatch(matchId, success, failure){
+  $.get("/" + matchId, function(e){
     try {
       var res = JSON.parse(e);
       if (res === undefined || res.Id === undefined)
-        throw "Invalid game id";
+        throw "Invalid match id";
       success(res);
     } catch(ex){
       failure(ex);

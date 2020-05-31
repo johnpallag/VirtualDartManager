@@ -1,0 +1,20 @@
+const UTIL = require("../util");
+const GAME = require("./game");
+require("../util/seedrandom");
+
+/////////////////////////////////////////////////////////////////////////
+
+const Match = function(host, gameType) {
+  this.Id = UTIL.GenerateId();
+  this.Players = [];
+  this.PlayerMap = [];
+  this.Host = host;
+  this.Games = [];
+  this.GameType = gameType;
+};
+
+/////////////////////////////////////////////////////////////////////////
+
+exports.Match = Match;
+
+/////////////////////////////////////////////////////////////////////////

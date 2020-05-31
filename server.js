@@ -21,32 +21,61 @@ const server = app
 const UTIL = require('./util');
 const PLAYER = require('./game/player');
 const GAME = require('./game/game');
+const CRICKET = require('./game/cricket')
+const MATCH = require('./game/match');
 
 /////////////////////////////////////////////////////////////////////////
 
-var games = [];
+var matches = [];
 
 /////////////////////////////////////////////////////////////////////////
 
-app.get('/game/:gameId', function(req, res){
-  var gameId = req.params.gameId;
-  res.sendFile(path.join(__dirname + '/static/game/index.html'));
+app.get('/:matchId', function(req, res){
+  var matchId = req.params.matchId;
+  var match = UTIL.Clone(matches[matchId]);
+  if(match !== undefined) {
+    match.IsHost = req.ip === match.Host;
+    delete match.Host;
+    delete match.PlayerMap;
+  }
+  res.end(JSON.stringify(match));
 });
 
 /////////////////////////////////////////////////////////////////////////
 
-app.get('/join/:gameId', function(req, res){
-  var gameId = req.params.gameId;
+app.get('/:matchId/join', function(req, res){
   res.sendFile(path.join(__dirname + '/static/join/index.html'));
+});
+
+/////////////////////////////////////////////////////////////////////////
+
+app.get('/:matchId/:gameId/game', function(req, res){
+  res.sendFile(path.join(__dirname + '/static/game/index.html'));
 });
 
 /////////////////////////////////////////////////////////////////////////
 
 app.post('/host', function(req, res){
   var gameType = req.body.GameType;
-  var newGame = new GAME.Game(req.ip, gameType);
-  games[newGame.Id] = newGame;
-  res.end(JSON.stringify(newGame));
+  var newMatch = new MATCH.Match(req.ip, gameType);
+  matches[newMatch.Id] = newMatch;
+  res.end(JSON.stringify(newMatch));
+});
+
+/////////////////////////////////////////////////////////////////////////
+
+app.post('/:matchId/join', function(req, res){
+  var address = req.ip;
+  var matchId = req.params.matchId;
+  if(matches[matchId] === undefined) {
+    res.end(JSON.stringify("Invalid match id"));
+    return;
+  }
+
+  var player = new PLAYER.Player(req.body.Name);
+  matches[matchId].Players.push(player);
+  matches[matchId].PlayerMap[address] = matches[matchId].Players.length - 1;
+  res.end(JSON.stringify(player));
 });
 
 /////////////////////////////////////////////////////////////////////////
@@ -60,22 +89,6 @@ app.post('/game/:gameId', function(req, res){
     delete game.PlayerMap;
   }
   res.end(JSON.stringify(game));
-});
-
-/////////////////////////////////////////////////////////////////////////
-
-app.post('/join/:gameId', function(req, res){
-  var address = req.ip;
-  var gameId = req.params.gameId;
-  if(games[gameId] === undefined) {
-    res.end(JSON.stringify("Invalid game"));
-    return;
-  }
-
-  var player = new PLAYER.Player(req.body.Name);
-  games[gameId].Players.push(player);
-  games[gameId].PlayerMap[address] = games[gameId].Players.length - 1;
-  res.end(JSON.stringify(player));
 });
 
 /////////////////////////////////////////////////////////////////////////
