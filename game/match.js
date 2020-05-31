@@ -4,7 +4,9 @@ const CRICKET = require("./cricket");
 require("../util/seedrandom");
 
 /////////////////////////////////////////////////////////////////////////
-
+// Top-level class for virtual dart manager
+// - Contains a list of players that have joined (spectators not tracked)
+// - Contains a list of simultanious games for this match
 const Match = function(host, private, gameType) {
   this.Id = UTIL.GenerateId();
   this.Players = [];
@@ -40,6 +42,20 @@ Match.prototype.Start = function(){
     this.GameMap[game.Id] = this.Games.length - 1;
   }
   this.Started = true;
+};
+
+/////////////////////////////////////////////////////////////////////////
+
+Match.prototype.ToJson = function(socket) {
+    var data = {};
+    data.Id = this.Id;
+    data.Players = this.Players;
+    data.Private = this.Private;
+    data.Games = this.Games;
+    data.GameType = this.Started;
+    data.Started = this.Started;
+    data.IsHost = socket === this.Host;
+    return data;
 };
 
 /////////////////////////////////////////////////////////////////////////

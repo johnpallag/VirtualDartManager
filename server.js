@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express');
 const bodyParser = require('body-parser');
+const socketIO = require('socket.io');
 const path = require('path');
 const uuidv1 = require('uuid/v1');
 const fs = require('fs');
@@ -17,6 +18,7 @@ const server = app
   .use(bodyParser.json())
   .set('trust proxy', true)
   .listen(PORT, () => console.log('Listening on ' + PORT));
+const io = socketIO(server);
 
 const UTIL = require('./util');
 const PLAYER = require('./game/player');
@@ -30,12 +32,143 @@ var matches = [];
 
 /////////////////////////////////////////////////////////////////////////
 
-app.get('/randomMatch', function(req, res){
+io.on('connection', function(socket) {
+  socket.on('disconnect', function() {
+    //delete socketMap[socket.handshake.address];
+  });
+
+  /////////////////////////////////////////////////////////////////////////
+  // Returns the match data
+  // Params:
+  // - MatchId: id of the match to join
+  socket.on('getMatch', function(data, callback){
+    const matchId = data.MatchId;
+    const match = matches[matchId];
+    if (match === undefined) {
+      callback("Invalid match id");
+      return;
+    }
+
+    var playerIdx = match.PlayerMap[socket];
+    if (playerIdx === undefined) {
+      callback({Match: match.ToJson()});
+      return;
+    }
+
+    callback({Match: match.ToJson(), Player: match.Players[playerIdx]});
+  });
+
+  /////////////////////////////////////////////////////////////////////////
+  // Host new private match
+  // Params:
+  // - GameType: type of game (Cricket is only one supported)
+  socket.on('host', function(data, callback) {
+    // TODO: validate game type
+    const gameType = data.GameType;
+    const newMatch = new MATCH.Match(socket, true, gameType);
+    matches[newMatch.Id] = newMatch;
+    callback(matches[newMatch.Id].ToJson(socket));
+  });
+
+  /////////////////////////////////////////////////////////////////////////
+  // Join match
+  // Params:
+  // - MatchId: id of the match to join
+  // - Name: player name
+  socket.on('join', function(data, callback) {
+    const matchId = data.MatchId;
+    const name = data.Name;
+    if (matches[matchId] === undefined) {
+      callback("Invalid match id");
+      return;
+    }
+
+    // Create socket 'room'
+    socket.join(matchId);
+
+    let player = new PLAYER.Player(name);
+    matches[matchId].Players.push(player);
+    matches[matchId].PlayerMap[socket] = matches[matchId].Players.length - 1;
+
+    io.in(matchId).emit("match", matches[matchId].ToJson(socket));
+    callback(player);
+  });
+
+  /////////////////////////////////////////////////////////////////////////
+  // Start match
+  // - Only the host can start a match if there are enough players
+  // Params:
+  // - MatchId: id of the match to join
+  socket.on('start', function(data, err) {
+    const matchId = data.MatchId;
+    const match = matches[matchId];
+    if (match === undefined) {
+      err("Invalid match Id");
+      return;
+    }
+    if (!match.IsAuthorized(socket)) {
+      err("Only the host can start the match");
+      return;
+    }
+    if (!match.CanStart()) {
+      err("Cannot start match");
+      return;
+    }
+
+    match.Start();
+    io.in(matchId).emit("match", matches[matchId].ToJson(socket));
+  });
+
+  /////////////////////////////////////////////////////////////////////////
+  // Finish a player's turn (3 darts)
+  // Params:
+  // - MatchId: id of the match to join
+  // - GameId: id of the game in the match
+  // - Throws: array containg data about the throws
+  //   - Value: value of the hit (0 - 20, 25)
+  //   - Multiplier: multiple of the hit (1, 2, 3)
+  socket.on('turn', function(data, err) {
+    const matchId = data.matchId;
+    const match = matches[matchId];
+    if (match === undefined) {
+      err("Invalid match Id");
+      return;
+    }
+    if (match.Started === false) {
+      err("Match has not started");
+      return;
+    }
+
+    const gameId = data.gameId;
+    const gameIdx = match.GameMap[gameId];
+    if (gameIdx === undefined) {
+      err("Invalid game id");
+      return;
+    }
+
+    var playerIdx = match.PlayerMap[socket];
+    if (playerIdx === undefined) {
+      err("Invalid player");
+      return;
+    }
+    game.AddThrow(playerIdx, req.body.Throw1);
+    game.AddThrow(playerIdx, req.body.Throw2);
+    game.AddThrow(playerIdx, req.body.Throw3);
+
+    io.in(matchId).emit("match", matches[matchId].ToJson(socket));
+  });
+});
+
+/////////////////////////////////////////////////////////////////////////
+
+app.get('/randomMatch', function(req, res) {
   let targetMatch = null;
-  if(matches.length > 0) {
-    targetMatch = matches.reduce((targetMatch, match) => targetMatch || ((!match.Private && !match.Started) ? match : null));
+  if (matches.length > 0) {
+    targetMatch = matches.reduce(
+      (targetMatch, match) => targetMatch ||
+      ((!match.Private && !match.Started) ? match : null));
   }
-  if(targetMatch === null) {
+  if (targetMatch === null) {
     targetMatch = new MATCH.Match(req.ip, false, "Cricket");
     matches[targetMatch.Id] = targetMatch;
   }
@@ -44,10 +177,10 @@ app.get('/randomMatch', function(req, res){
 
 /////////////////////////////////////////////////////////////////////////
 
-app.get('/:matchId', function(req, res){
+app.get('/:matchId', function(req, res) {
   const matchId = req.params.matchId;
   let match = UTIL.Clone(matches[matchId]);
-  if(match === undefined) {
+  if (match === undefined) {
     res.status(404).end("Invalid match id");
     return;
   }
@@ -59,118 +192,48 @@ app.get('/:matchId', function(req, res){
 
 /////////////////////////////////////////////////////////////////////////
 
-app.get('/:matchId/join/', function(req, res){
+app.get('/:matchId/join/', function(req, res) {
   const matchId = req.params.matchId;
-  if(matches[matchId] === undefined) {
+  if (matches[matchId] === undefined) {
     res.status(404).end("Invalid match id");
     return;
   }
-  var content = fs.readFileSync(path.join(__dirname + '/static/join/index.html'),'utf8');
-  content = content.replace("{{MATCH_ID}}", "\"" + matchId + "\"");
+  var content = fs.readFileSync(path.join(__dirname + '/static/join/index.html'), 'utf8');
+  content = content.replace("{{MATCH_ID}}", matchId);
   res.send(content);
 });
 
 /////////////////////////////////////////////////////////////////////////
 
-app.get('/:matchId/:gameId/game/', function(req, res){
+app.get('/:matchId/:gameId/game/', function(req, res) {
   const matchId = req.params.matchId;
   const gameId = req.params.gameId;
-  if(matches[matchId] === undefined) {
+  if (matches[matchId] === undefined) {
     res.status(404).end("Invalid match id");
     return;
   }
-  if(matches[matchId].GameMap[gameId] === undefined) {
+  if (matches[matchId].GameMap[gameId] === undefined) {
     res.status(404).end("Invalid game id");
     return;
   }
-  var content = fs.readFileSync(path.join(__dirname + '/static/game/index.html'),'utf8');
-  content = content.replace("{{MATCH_ID}}", "\"" + matchId + "\"");
-  content = content.replace("{{GAME_ID}}", "\"" + gameId + "\"");
+  var content = fs.readFileSync(path.join(__dirname + '/static/game/index.html'), 'utf8');
+  content = content.replace("{{MATCH_ID}}", matchId);
+  content = content.replace("{{GAME_ID}}", gameId);
   res.send(content);
 });
 
 /////////////////////////////////////////////////////////////////////////
 
-app.post('/host', function(req, res){
-  const gameType = req.body.GameType;
-  const newMatch = new MATCH.Match(req.ip, true, gameType);
-  matches[newMatch.Id] = newMatch;
-  res.end(JSON.stringify(newMatch));
-});
-
-/////////////////////////////////////////////////////////////////////////
-
-app.post('/:matchId/join', function(req, res){
-  const address = req.ip;
-  const matchId = req.params.matchId;
-  if(matches[matchId] === undefined) {
-    res.status(404).end("Invalid match id");
-    return;
-  }
-
-  let player = new PLAYER.Player(req.body.Name);
-  matches[matchId].Players.push(player);
-  matches[matchId].PlayerMap[address] = matches[matchId].Players.length - 1;
-  res.end(JSON.stringify(player));
-});
-
-/////////////////////////////////////////////////////////////////////////
-
-app.post('/:matchId/start', function(req, res){
-  const address = req.ip;
-  const matchId = req.params.matchId;
-  const match = matches[matchId];
-  if(match === undefined) {
-    res.status(404).end("Invalid match id");
-    return;
-  }
-
-  if(!match.IsAuthorized(address)) {
-    res.status(403).end("Only the host can start a match");
-    return;
-  }
-  if(!match.CanStart()){
-    res.status(400).end("Cannot start match");
-    return;
-  }
-
-  match.Start();
-  res.end("");
-});
-
-/////////////////////////////////////////////////////////////////////////
-
-app.post('/update/:gameId', function(req, res){
-  var gameId = req.params.gameId;
-  var address = req.ip;
-  var game = games[gameId];
-  if(game === undefined) {
-    res.end(JSON.stringify("Invalid game"));
-    return;
-  }
-  var playerIdx = game.PlayerMap[address];
-  if(playerIdx === undefined){
-    res.end(JSON.stringify("Invalid player"));
-    return;
-  }
-  game.AddThrow(playerIdx, req.body.Throw1);
-  game.AddThrow(playerIdx, req.body.Throw2);
-  game.AddThrow(playerIdx, req.body.Throw3);
-  res.end();
-});
-
-/////////////////////////////////////////////////////////////////////////
-
-app.get('/:matchId/:gameId', function(req, res){
+app.get('/:matchId/:gameId', function(req, res) {
   const matchId = req.params.matchId;
   const gameId = req.params.gameId;
   const match = matches[matchId];
-  if(match === undefined) {
+  if (match === undefined) {
     res.status(404).end("Invalid match id");
     return;
   }
   const gameIdx = match.GameMap[gameId];
-  if(gameIdx === undefined) {
+  if (gameIdx === undefined) {
     res.status(404).end("Invalid game id");
     return;
   }

@@ -7,10 +7,11 @@
   <meta name="author" content="">
 
   <title>Fallow Dart MGR - Game</title>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
   <script src="/js/jquery.js"></script>
   <script src="/js/bootstrap.min.js"></script>
   <script src="/js/bootstrap-slider.js"></script>
-  <script src="/js/index.js"></script>
+  <script src="/js/api.js"></script>
   <script src="/js/util.js"></script>
 
   <link href="/css/bootstrap.min.css" rel="stylesheet">
@@ -32,8 +33,8 @@
     }
   </style>
   <script>
-    var matchId = {{MATCH_ID}};
-    var gameId = {{GAME_ID}};
+    var matchId = "{{MATCH_ID}}";
+    var gameId = "{{GAME_ID}}";
 
     $("#submit").on("click", function(){
       $.post("/update/" + game.Id, {

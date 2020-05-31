@@ -8,12 +8,14 @@
   <meta name="author" content="">
 
   <title>Fallow Dart MGR - Host</title>
-  <script src="../js/jquery.js"></script>
-  <script src="../js/bootstrap.min.js"></script>
-  <script src="../js/bootstrap-slider.js"></script>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <script src="/js/bootstrap-slider.js"></script>
+  <script src="/js/api.js"></script>
 
-  <link href="../css/bootstrap.min.css" rel="stylesheet">
-  <link href="../css/style.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -36,17 +38,17 @@
         <label for="maxPlayers">Max Players (0 for unlimited)</label>
         <input type="number" min="0" id="maxPlayer" value="0" class="form-control"/>
       </div>
-      <a href="/host" id="hostButton" class="btn btn-primary">Host</a>
+        <div id="hostButton" class="btn btn-primary">Host</div>
     </form>
   </div>
-
   <script>
     $("#hostButton").on('click', function() {
-      $.post("/host", {GameType: $("#gameType").val()}, function(e) {
-        var res = JSON.parse(e);
-        if (res && res.Id) {
-          window.location = "/" + res.Id + "/join/";
-        }
+      FallowStudios.VDM.Host({
+        GameType: $("#gameType").val()
+      }, function(match) {
+        window.location = "/" + match.Id + "/join";
+      }, function(e) {
+        alert(e);
       });
     });
   </script>

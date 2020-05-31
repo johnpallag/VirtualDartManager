@@ -8,11 +8,13 @@
   <meta name="author" content="">
 
   <title>Fallow Dart MGR - Join</title>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
   <script src="/js/jquery.js"></script>
   <script src="/js/bootstrap.min.js"></script>
   <script src="/js/bootstrap-slider.js"></script>
-  <script src="/js/index.js"></script>
+  <script src="/js/api.js"></script>
   <script src="/js/util.js"></script>
+  <script src="/join/index.js"></script>
 
   <link href="/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/style.css" rel="stylesheet">
@@ -34,35 +36,7 @@
   </div>
   <div id="matchId"></div>
   <script>
-    var matchId = {{MATCH_ID}};
-
-    $("#join").on("click", function(e) {
-      if (match.Id === undefined)
-        return;
-      if ($("#name").val() === "")
-        return;
-      JoinMatch($("#name").val(), matchId, function() {
-        $("#join").hide();
-        $("#name").hide();
-      }, function() {});
-    });
-
-    $("#start").on("click", function(e) {
-      $.post("/" + match.Id + "/start/");
-    });
-
-    function Initialize(matchData) {
-      match = matchData;
-      $("#matchId").text(match.Id);
-      if (match.IsHost === true)
-        $("#start").removeClass("disabled");
-      $("#players").html("");
-      for (let i = 0; i < match.Players.length; i++) {
-        $("#players").append("<div class='player'>" + match.Players[i].Name + "</div>");
-      }
-      if (match.Started === true)
-        window.location = "/" + match.Id + "/" + game.Id + "/game";
-    }
+    var matchId = "{{MATCH_ID}}";
   </script>
 </body>
 
