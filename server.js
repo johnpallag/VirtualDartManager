@@ -30,6 +30,20 @@ var matches = [];
 
 /////////////////////////////////////////////////////////////////////////
 
+app.get('/randomMatch', function(req, res){
+  let targetMatch = null;
+  if(matches.length > 0) {
+    targetMatch = matches.reduce((targetMatch, match) => targetMatch || ((!match.Private && !match.Started) ? match : null));
+  }
+  if(targetMatch === null) {
+    targetMatch = new MATCH.Match(req.ip, false, "Cricket");
+    matches[targetMatch.Id] = targetMatch;
+  }
+  res.end(JSON.stringify(targetMatch));
+});
+
+/////////////////////////////////////////////////////////////////////////
+
 app.get('/:matchId', function(req, res){
   const matchId = req.params.matchId;
   let match = UTIL.Clone(matches[matchId]);
@@ -45,25 +59,7 @@ app.get('/:matchId', function(req, res){
 
 /////////////////////////////////////////////////////////////////////////
 
-app.get('/:matchId/:gameId', function(req, res){
-  const matchId = req.params.matchId;
-  const gameId = req.params.gameId;
-  const match = matches[matchId];
-  if(match === undefined) {
-    res.status(404).end("Invalid match id");
-    return;
-  }
-  const gameIdx = match.GameMap[gameId];
-  if(gameIdx === undefined) {
-    res.status(404).end("Invalid game id");
-    return;
-  }
-  res.end(JSON.stringify(UTIL.Clone(match.Games[gameIdx])));
-});
-
-/////////////////////////////////////////////////////////////////////////
-
-app.get('/:matchId/join', function(req, res){
+app.get('/:matchId/join/', function(req, res){
   const matchId = req.params.matchId;
   if(matches[matchId] === undefined) {
     res.status(404).end("Invalid match id");
@@ -74,7 +70,7 @@ app.get('/:matchId/join', function(req, res){
 
 /////////////////////////////////////////////////////////////////////////
 
-app.get('/:matchId/:gameId/game', function(req, res){
+app.get('/:matchId/:gameId/game/', function(req, res){
   const matchId = req.params.matchId;
   const gameId = req.params.gameId;
   if(matches[matchId] === undefined) {
@@ -92,7 +88,7 @@ app.get('/:matchId/:gameId/game', function(req, res){
 
 app.post('/host', function(req, res){
   const gameType = req.body.GameType;
-  const newMatch = new MATCH.Match(req.ip, gameType);
+  const newMatch = new MATCH.Match(req.ip, true, gameType);
   matches[newMatch.Id] = newMatch;
   res.end(JSON.stringify(newMatch));
 });
@@ -128,6 +124,10 @@ app.post('/:matchId/start', function(req, res){
     res.status(403).end("Only the host can start a match");
     return;
   }
+  if(!match.CanStart()){
+    res.status(400).end("Cannot start match");
+    return;
+  }
 
   match.Start();
   res.end("");
@@ -152,6 +152,24 @@ app.post('/update/:gameId', function(req, res){
   game.AddThrow(playerIdx, req.body.Throw2);
   game.AddThrow(playerIdx, req.body.Throw3);
   res.end();
+});
+
+/////////////////////////////////////////////////////////////////////////
+
+app.get('/:matchId/:gameId', function(req, res){
+  const matchId = req.params.matchId;
+  const gameId = req.params.gameId;
+  const match = matches[matchId];
+  if(match === undefined) {
+    res.status(404).end("Invalid match id");
+    return;
+  }
+  const gameIdx = match.GameMap[gameId];
+  if(gameIdx === undefined) {
+    res.status(404).end("Invalid game id");
+    return;
+  }
+  res.end(JSON.stringify(UTIL.Clone(match.Games[gameIdx])));
 });
 
 /////////////////////////////////////////////////////////////////////////

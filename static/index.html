@@ -27,10 +27,22 @@
       <div class="form-group">
         <input type="text" name="fname" id="name" class="form-control" placeholder="Your Name"/>
       </div>
-      <a href="#" id="joinButton" class="btn btn-success">Join Random Match</a>
-      <a href="/host" id="hostButton" class="btn btn-primary">Host Private Match</a>
+        <div id="joinButton" class="btn btn-success">Join Random Match</div>
+        <a href="/host" id="hostButton" class="btn btn-primary">Host Private Match</a>
     </form>
   </div>
+
+
+  <script>
+    $("#joinButton").on('click', function() {
+      $.get("/randomMatch", function(e) {
+        var res = JSON.parse(e);
+        if (res && res.Id) {
+          window.location = "/" + res.Id + "/join/";
+        }
+      });
+    });
+  </script>
 </body>
 
 </html>

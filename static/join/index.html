@@ -52,7 +52,7 @@
     });
 
     $("#start").on("click", function(e) {
-      $.post("/start/" + match.Id);
+      $.post("/" + match.Id + "/start/");
     });
 
     function UpdateMatch() {
@@ -65,7 +65,7 @@
 
     function Initialize(matchData) {
       match = matchData;
-      $("#gameId").text(match.Id);
+      $("#matchId").text(match.Id);
       if (match.IsHost === true)
         $("#start").removeClass("disabled");
       $("#players").html("");

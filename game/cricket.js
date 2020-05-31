@@ -27,12 +27,11 @@ ValueScore.prototype.IsClosed = function(){
 // - Each player must score 3 or more hits on bull and 20-15
 // - More than 3 hits will earn points
 // - First to close with most points wins
-const Cricket = function(match, playerIdxs) {
-  if (this.PlayerIdxs.length !== 2 || match === undefined)
+const Cricket = function(playerIdxs) {
+  if (playerIdxs.length !== 2)
     throw "Invalid Cricket game";
 
   this.Id = UTIL.GenerateId();
-  this.Match = match;
 
   this.Players = playerIdxs;
   this.CurrentPlayerThrows = 0;
@@ -84,12 +83,12 @@ Cricket.prototype.CheckWinCondition = function() {
 
 /////////////////////////////////////////////////////////////////////////
 
-Cricket.prototype.AddThrow = function(playerIdx, throwData) {
+Cricket.prototype.AddThrow = function(match, playerIdx, throwData) {
   let newThrow = new THROW.Throw(throwData.value, throwData.multiple);
   const currentPlayerIdx = this.GetCurrentPlayer();
   if (playerIdx !== currentPlayerIdx)
     return;
-  this.Match.Players[playerIdx].Throws.push(newThrow);
+  match.Players[playerIdx].Throws.push(newThrow);
 
   if (CricketScores.includes(newThrow.Value)) {
     // Create score object if empty
