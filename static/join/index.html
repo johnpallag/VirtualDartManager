@@ -30,22 +30,18 @@
         <div id="join" class="btn btn-success">Join</div>
         <div id="start" class="btn btn-primary disabled">Start</div>
     </form>
+    <div id="players"/></div>
   </div>
   <div id="matchId"></div>
   <script>
-    var match = {};
-
-    UpdateMatch();
-    setInterval(function() {
-      UpdateMatch();
-    }, 1000);
+    var matchId = {{MATCH_ID}};
 
     $("#join").on("click", function(e) {
       if (match.Id === undefined)
         return;
       if ($("#name").val() === "")
         return;
-      JoinMatch($("#name").val(), GetMatchId(), function() {
+      JoinMatch($("#name").val(), matchId, function() {
         $("#join").hide();
         $("#name").hide();
       }, function() {});
@@ -54,14 +50,6 @@
     $("#start").on("click", function(e) {
       $.post("/" + match.Id + "/start/");
     });
-
-    function UpdateMatch() {
-      LoadMatch(GetMatchId(), function(match) {
-        Initialize(match);
-      }, function() {
-        //window.location = "/";
-      });
-    }
 
     function Initialize(matchData) {
       match = matchData;
@@ -72,8 +60,8 @@
       for (let i = 0; i < match.Players.length; i++) {
         $("#players").append("<div class='player'>" + match.Players[i].Name + "</div>");
       }
-      //if (match.GameState !== -1)
-      //  window.location = "/game/" + game.Id;
+      if (match.Started === true)
+        window.location = "/" + match.Id + "/" + game.Id + "/game";
     }
   </script>
 </body>

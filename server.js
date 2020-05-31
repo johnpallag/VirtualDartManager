@@ -65,7 +65,9 @@ app.get('/:matchId/join/', function(req, res){
     res.status(404).end("Invalid match id");
     return;
   }
-  res.sendFile(path.join(__dirname + '/static/join/index.html'));
+  var content = fs.readFileSync(path.join(__dirname + '/static/join/index.html'),'utf8');
+  content = content.replace("{{MATCH_ID}}", "\"" + matchId + "\"");
+  res.send(content);
 });
 
 /////////////////////////////////////////////////////////////////////////
@@ -81,7 +83,10 @@ app.get('/:matchId/:gameId/game/', function(req, res){
     res.status(404).end("Invalid game id");
     return;
   }
-  res.sendFile(path.join(__dirname + '/static/game/index.html'));
+  var content = fs.readFileSync(path.join(__dirname + '/static/game/index.html'),'utf8');
+  content = content.replace("{{MATCH_ID}}", "\"" + matchId + "\"");
+  content = content.replace("{{GAME_ID}}", "\"" + gameId + "\"");
+  res.send(content);
 });
 
 /////////////////////////////////////////////////////////////////////////
