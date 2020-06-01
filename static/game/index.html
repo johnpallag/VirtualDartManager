@@ -1,4 +1,5 @@
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -23,16 +24,29 @@
 <body>
   <div id="matchId"></div>
   <div id="playerId"></div>
-  <div id="players"></div>
-  <input id="throw1" type="text"/>
-  <input id="throw2" type="text"/>
-  <input id="throw3" type="text"/>
-  <div id="submit" class="btn btn-primary">Submit</div>
-  <div id="players"></div>
+  <div class="container">
+    <form id="throwForm">
+      <h3 class="text-center">Your Turn</h3>
+    </form>
+    <hr>
+    <div id="players"></div>
+  </div>
   <style>
-  .score {
-    text-align:center;
-    width: 85px
+    .score {
+      text-align: center;
+      width: 85px;
+      font-size: 20px;
+    }
+
+    #throwForm {
+      position: absolute;
+      top: calc(50% - 200px);
+      width: 360px;
+      left: calc(50% - 180px);
+      padding: 15px;
+      background-color: #61594f;
+      border-radius: 10px;
+      box-shadow: 2px 2px 5px black;
     }
   </style>
   <script>

@@ -13,6 +13,8 @@ const GameManager = function(socket) {
 
 GameManager.prototype.Initialize = function() {
   var gm = this;
+  if(matchId === null || matchId === undefined)
+    return;
   FallowStudios.VDM.Match.Get(matchId, function(e) {
     gm.Match = e.Match;
     gm.Player = e.Player;
@@ -21,7 +23,7 @@ GameManager.prototype.Initialize = function() {
     alert(e);
   });
 
-  this.Socket.on("match", function(e){
+  socket.on("match", function(e){
     gm.Match = e;
     gm.Callbacks.map((x)=>x(gm.Match));
   });

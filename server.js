@@ -41,7 +41,7 @@ io.on('connection', function(socket) {
   // Returns the match data
   // Params:
   // - MatchId: id of the match to join
-  socket.on('getMatch', function(data, callback){
+  socket.on('getMatch', function(data, callback) {
     const matchId = data.MatchId;
     const match = matches[matchId];
     if (match === undefined) {
@@ -51,11 +51,16 @@ io.on('connection', function(socket) {
 
     var playerIdx = match.PlayerMap[socket.handshake.address];
     if (playerIdx === undefined) {
-      callback({Match: match.ToJson()});
+      callback({
+        Match: match.ToJson()
+      });
       return;
     }
 
-    callback({Match: match.ToJson(), Player: match.Players[playerIdx]});
+    callback({
+      Match: match.ToJson(),
+      Player: match.Players[playerIdx]
+    });
   });
 
   /////////////////////////////////////////////////////////////////////////
@@ -128,7 +133,7 @@ io.on('connection', function(socket) {
   //   - Value: value of the hit (0 - 20, 25)
   //   - Multiplier: multiple of the hit (1, 2, 3)
   socket.on('turn', function(data, err) {
-    const matchId = data.matchId;
+    const matchId = data.MatchId;
     const match = matches[matchId];
     if (match === undefined) {
       err("Invalid match Id");
@@ -139,7 +144,7 @@ io.on('connection', function(socket) {
       return;
     }
 
-    const gameId = data.gameId;
+    const gameId = data.GameId;
     const gameIdx = match.GameMap[gameId];
     if (gameIdx === undefined) {
       err("Invalid game id");
@@ -151,10 +156,12 @@ io.on('connection', function(socket) {
       err("Invalid player");
       return;
     }
-    game.AddThrow(playerIdx, req.body.Throw1);
-    game.AddThrow(playerIdx, req.body.Throw2);
-    game.AddThrow(playerIdx, req.body.Throw3);
-
+    for (let i = 0; i < 3; i++) {
+      match.Games[gameIdx].AddThrow(match, playerIdx, data.Throws[i] || {
+        Value: 0,
+        Multiplier: 1
+      });
+    }
     io.in(matchId).emit("match", matches[matchId].ToJson(socket.handshake.address));
   });
 });

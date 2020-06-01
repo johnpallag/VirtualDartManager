@@ -1,6 +1,7 @@
 const UTIL = require("../util");
 const GAME = require("./game");
 const MATCH = require("./match");
+const THROW = require("./throw");
 require("../util/seedrandom");
 
 /////////////////////////////////////////////////////////////////////////
@@ -55,7 +56,7 @@ Cricket.prototype.Start = function() {
 /////////////////////////////////////////////////////////////////////////
 
 Cricket.prototype.GetCurrentPlayer = function() {
-  return this.Players[RoundCounter % 2];
+  return this.Players[this.RoundCounter % 2];
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -70,7 +71,7 @@ Cricket.prototype.SumPlayerScore = function(playerIdx) {
 /////////////////////////////////////////////////////////////////////////
 
 Cricket.prototype.CheckWinCondition = function() {
-  const currentPlayerIdx = this.GetCurrentPlayer();
+  const currentPlayerIdx = this.RoundCounter % 2;
   const scores = this.Scores[currentPlayerIdx];
   if (scores === undefined)
     return false;
@@ -84,10 +85,10 @@ Cricket.prototype.CheckWinCondition = function() {
 /////////////////////////////////////////////////////////////////////////
 
 Cricket.prototype.AddThrow = function(match, playerIdx, throwData) {
-  let newThrow = new THROW.Throw(throwData.value, throwData.multiple);
+  let newThrow = new THROW.Throw(throwData.Value, throwData.Multiple);
   const currentPlayerIdx = this.GetCurrentPlayer();
-  if (playerIdx !== currentPlayerIdx)
-    return;
+  //if (playerIdx !== currentPlayerIdx)
+  //  return;
   match.Players[playerIdx].Throws.push(newThrow);
 
   if (CricketScores.includes(newThrow.Value)) {
@@ -98,7 +99,7 @@ Cricket.prototype.AddThrow = function(match, playerIdx, throwData) {
     this.Scores[playerIdx][newThrow.Value].Multiples.push(newThrow.Multiple);
   }
 
-  if(CheckWinCondition())
+  if(this.CheckWinCondition())
     this.Winner = currentPlayerIdx;
 
   // Increment throws/rounds as necessary
