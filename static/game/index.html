@@ -1,4 +1,5 @@
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -6,77 +7,51 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Fallow Dart MGR - Game</title>
+  <title>Virtual Dart MGR - Game</title>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
   <script src="/js/jquery.js"></script>
   <script src="/js/bootstrap.min.js"></script>
   <script src="/js/bootstrap-slider.js"></script>
-  <script src="/js/index.js"></script>
+  <script src="/js/api.js"></script>
   <script src="/js/util.js"></script>
+  <script src="/js/gameManager.js"></script>
+  <script src="/game/index.js"></script>
 
   <link href="/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/style.css" rel="stylesheet">
 </head>
 
 <body>
-  <div id="gameId"></div>
-  <div id="players"></div>
-  <input id="throw1" type="text"/>
-  <input id="throw2" type="text"/>
-  <input id="throw3" type="text"/>
-  <div id="submit" class="btn btn-primary">Submit</div>
-  <div id="players"></div>
+  <div id="matchId"></div>
+  <div id="playerId"></div>
+  <div class="container">
+    <form id="throwForm">
+      <h3 class="text-center">Your Turn</h3>
+    </form>
+    <hr>
+    <div id="players"></div>
+  </div>
   <style>
-  .score {
-    text-align:center;
-    width: 85px
+    .score {
+      text-align: center;
+      width: 85px;
+      font-size: 20px;
+    }
+
+    #throwForm {
+      position: absolute;
+      top: calc(50% - 200px);
+      width: 360px;
+      left: calc(50% - 180px);
+      padding: 15px;
+      background-color: #61594f;
+      border-radius: 10px;
+      box-shadow: 2px 2px 5px black;
     }
   </style>
   <script>
-    var game = {};
-
-    UpdateGame();
-    setInterval(function() {
-      UpdateGame();
-    }, 1000);
-
-    $("#submit").on("click", function(){
-      $.post("/update/" + game.Id, {
-        Throw1: $("#throw1").val(),
-        Throw2: $("#throw2").val(),
-        Throw3: $("#throw3").val()
-        });
-    });
-
-    function UpdateGame() {
-      LoadGame(GetGameId(), function(game){
-        Initialize(game);
-      }, function(){
-        window.location = "/";
-      });
-    }
-
-    const cricketScores = ['20','19','18','17','16','15','bull'];
-
-    function Initialize(gameData) {
-      game = gameData;
-      $("#gameId").text(game.Id);
-      $("#players").html("");
-      for(let i=0;i<game.Players.length;i++){
-        $("#players").append("<div class='player'>" + game.Players[i].Name + "</div><br>");
-
-        for(let j=0;j<cricketScores.length;j++){
-          var count = game.Players[i].Scores[cricketScores[j]] || 0;
-          var printout = "";
-          if(count == 1)
-            printout = "&#x2f;";
-          else if(count == 2)
-            printout = "X";
-          else if(count >= 3)
-            printout = "&#9447; " + ((count - 3 > 0) ? ("" + (count - 3)) : "");
-          $("#players").append("<div class='score'>" + cricketScores[j] + ": " + printout + "</div>");
-        }
-      }
-    }
+    var matchId = "{{MATCH_ID}}";
+    var gameId = "{{GAME_ID}}";
   </script>
 </body>
 
