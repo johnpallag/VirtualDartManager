@@ -62,4 +62,14 @@ Game.prototype.NextState = function() {
 
 /////////////////////////////////////////////////////////////////////////
 
+Game.prototype.ToJson = function(){
+  var data = {};
+  data.Id = this.Id;
+  data.GameType = this.GameType;
+  data.GameState = this.GameState;
+  return data;
+};
+
+/////////////////////////////////////////////////////////////////////////
+
 exports.Game = Game;

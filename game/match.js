@@ -21,8 +21,8 @@ const Match = function(host, private, gameType) {
 
 /////////////////////////////////////////////////////////////////////////
 
-Match.prototype.IsAuthorized = function(address){
-  return address = this.Host;
+Match.prototype.IsAuthorized = function(playerId){
+  return playerId = this.Host;
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -49,9 +49,9 @@ Match.prototype.Start = function(){
 Match.prototype.ToJson = function(socket) {
     var data = {};
     data.Id = this.Id;
-    data.Players = this.Players;
+    data.Players = this.Players.map((player)=>player.ToJson());
     data.Private = this.Private;
-    data.Games = this.Games;
+    data.Games = this.Games.map((game)=>game.ToJson());
     data.GameType = this.Started;
     data.Started = this.Started;
     data.IsHost = socket === this.Host;

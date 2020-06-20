@@ -8,7 +8,16 @@ const Player = function(name) {
   this.Id = UTIL.GenerateId();
   this.Throws = [];
   this.Name = name;
-}
+};
+
+/////////////////////////////////////////////////////////////////////////
+
+Player.prototype.ToJson = function() {
+  return {
+    Name: this.Name,
+    Throws: this.Throws
+  };
+};
 
 /////////////////////////////////////////////////////////////////////////
 
